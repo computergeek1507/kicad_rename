@@ -15,9 +15,11 @@ namespace kicad_rename
 {
     public partial class Form1 : Form
     {
+        public static ListBoxLog listBoxLog;
         public Form1()
         {
             InitializeComponent();
+            listBoxLog = new ListBoxLog(listBox1);
         }
 
         private void buttonProject_Click(object sender, EventArgs e)
@@ -74,7 +76,7 @@ namespace kicad_rename
                 }
                 catch (Exception ex)
                 {
-
+                    listBoxLog.Log(Level.Error, ex.Message);
                 }
             }
 
@@ -104,7 +106,7 @@ namespace kicad_rename
                 }
                 catch (Exception ex)
                 {
-
+                    listBoxLog.Log(Level.Error, ex.Message);
                 }
             }
 
@@ -130,6 +132,7 @@ namespace kicad_rename
             // Copy each file into the new directory.
             foreach (FileInfo fi in source.GetFiles())
             {
+                listBoxLog.Log(Level.Debug, string.Format(@"Copying {0}\{1}", target.FullName, fi.Name));
                 //Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
                 fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
             }
@@ -150,7 +153,9 @@ namespace kicad_rename
             // Copy each file into the new directory.
             foreach (FileInfo fi in source.GetFiles())
             {
-                Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+                listBoxLog.Log(Level.Debug,string.Format(@"Moving {0}\{1}", target.FullName, fi.Name));
+
+                //Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
                 fi.MoveTo(Path.Combine(target.FullName, fi.Name));
             }
 
@@ -161,6 +166,21 @@ namespace kicad_rename
                     target.CreateSubdirectory(diSourceSubDir.Name);
                 MoveAll(diSourceSubDir, nextTargetSubDir);
             }
+        }
+
+        private void buttonSchematic_Click(object sender, EventArgs e)
+        {
+            if (openFileDialogSchematic.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = openFileDialogSchematic.FileName;
+                textBoxSchematic.Text = filePath;
+                //FileInfo info = new FileInfo(filePath);
+            }            
+        }
+
+        private void buttonSixFix_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
