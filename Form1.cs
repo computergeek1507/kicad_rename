@@ -30,7 +30,7 @@ namespace kicad_rename
                 textBoxProject.Text = filePath;
                 //FileInfo info = new FileInfo(filePath);
                 textBoxNewName.Text = textBoxOldName.Text = System.IO.Path.GetFileNameWithoutExtension(filePath);
-            } 
+            }
         }
 
         private void buttonRename_Click(object sender, EventArgs e)
@@ -46,7 +46,11 @@ namespace kicad_rename
                 MessageBox.Show("New and Old Names Are the same");
                 return;
             }
-            foreach (string fileName in Directory.GetFiles(project.Directory.FullName))
+
+			List<Tuple<string, string>> replaceList = new List<Tuple<string, string>>();
+			replaceList.Add(new Tuple<string, string>(textBoxOldName.Text, textBoxNewName.Text));
+
+			foreach (string fileName in Directory.GetFiles(project.Directory.FullName))
             {
                 // fileName  is the file name
                 string newName = fileName.Replace(textBoxOldName.Text, textBoxNewName.Text);
@@ -72,7 +76,7 @@ namespace kicad_rename
                         File.Move(fileName, newName);
                     }
                     Thread.Sleep(100);
-                    ReplaceInFile(newName, textBoxOldName.Text, textBoxNewName.Text);
+                    ReplaceInFile(newName, replaceList);
                 }
                 catch (Exception ex)
                 {
@@ -102,7 +106,7 @@ namespace kicad_rename
                     {
                         MoveAll(diSource, diTarget);
                     }
-  
+
                 }
                 catch (Exception ex)
                 {
@@ -112,13 +116,16 @@ namespace kicad_rename
 
         }
 
-        void ReplaceInFile(string filePath, string searchText, string replaceText)
+        void ReplaceInFile(string filePath, List<Tuple<string,string>> replaceList)
         {
             StreamReader reader = new StreamReader(filePath);
             string content = reader.ReadToEnd();
             reader.Close();
 
-            content = Regex.Replace(content, searchText, replaceText);
+			foreach (Tuple<string, string> pair in replaceList)
+			{
+                content = Regex.Replace(content, pair.Item1, pair.Item2);
+			}
 
             StreamWriter writer = new StreamWriter(filePath);
             writer.Write(content);
@@ -170,12 +177,12 @@ namespace kicad_rename
 
         private void buttonSchematic_Click(object sender, EventArgs e)
         {
-            if (openFileDialogSchematic.ShowDialog() == DialogResult.OK)
+            if (openFileDialogSchematicPCB.ShowDialog() == DialogResult.OK)
             {
-                string filePath = openFileDialogSchematic.FileName;
+                string filePath = openFileDialogSchematicPCB.FileName;
                 textBoxSchematic.Text = filePath;
                 //FileInfo info = new FileInfo(filePath);
-            }            
+            }
         }
 
         private void buttonSixFix_Click(object sender, EventArgs e)
